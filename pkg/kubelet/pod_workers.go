@@ -88,6 +88,9 @@ type syncPodOptions struct {
 	podStatus *kubecontainer.PodStatus
 	// if update type is kill, use the specified options to kill the pod.
 	killPodOptions *KillPodOptions
+
+	// if volumes are all mounted, `volumesHaveMounted <- true`. Otherwise, `volumesHaveMounted <- false`
+	volumesHaveMounted chan bool
 }
 
 // the function to invoke to perform a sync.
@@ -177,6 +180,7 @@ func (p *podWorkers) managePodLoop(podUpdates <-chan UpdatePodOptions) {
 				podStatus:      status,
 				killPodOptions: update.KillPodOptions,
 				updateType:     update.UpdateType,
+				volumesHaveMounted: make(chan bool, 1),
 			})
 			lastSyncTime = time.Now()
 			return err
